@@ -5,7 +5,7 @@ import {
   ContractId,
   PrivateKey,
 } from "@hashgraph/sdk";
-import DAOABI from "./DAOABI.json";
+import DAOABI from "./artifacts/contracts/DAO.sol/DAO.json";
 
 const Dashboard = () => {
   const container = document.createElement("div");
