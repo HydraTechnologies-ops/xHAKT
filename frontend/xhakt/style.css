@@ -1,161 +1,477 @@
+To implement a DAO using Hedera Hashgraph, we'll need to leverage the Hedera SDK to manage the voting and funding process on the Hedera network. We'll create a Hedera smart contract for the DAO and integrate it with the frontend.
+
+### Step 1: Create a Hedera Smart Contract for the DAO
+
+We will use Solidity to create a smart contract that will be deployed on the Hedera network. This contract will handle proposals, votes, and funding.
+
+**DAO.sol** (Smart Contract)
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract DAO {
+    struct Proposal {
+        uint id;
+        string description;
+        uint voteCount;
+        bool funded;
+    }
+
+    address public owner;
+    mapping(address => bool) public members;
+    Proposal[] public proposals;
+    mapping(uint => mapping(address => bool)) public votes;
+
+    uint public proposalCount;
+
+    event ProposalCreated(uint id, string description);
+    event Voted(uint proposalId, address voter);
+    event Funded(uint proposalId);
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not owner");
+        _;
+    }
+
+    modifier onlyMember() {
+        require(members[msg.sender], "Not a member");
+        _;
+    }
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    function addMember(address _member) public onlyOwner {
+        members[_member] = true;
+    }
+
+    function createProposal(string memory _description) public onlyMember {
+        proposalCount++;
+        proposals.push(Proposal(proposalCount, _description, 0, false));
+        emit ProposalCreated(proposalCount, _description);
+    }
+
+    function vote(uint _proposalId) public onlyMember {
+        require(_proposalId > 0 && _proposalId <= proposalCount, "Invalid proposal ID");
+        require(!votes[_proposalId][msg.sender], "Already voted");
+
+        votes[_proposalId][msg.sender] = true;
+        proposals[_proposalId - 1].voteCount++;
+        emit Voted(_proposalId, msg.sender);
+    }
+
+    function fundProposal(uint _proposalId) public onlyOwner {
+        require(_proposalId > 0 && _proposalId <= proposalCount, "Invalid proposal ID");
+        require(!proposals[_proposalId - 1].funded, "Already funded");
+
+        proposals[_proposalId - 1].funded = true;
+        emit Funded(_proposalId);
+    }
+
+    function getProposals() public view returns (Proposal[] memory) {
+        return proposals;
+    }
+}
+```
+
+### Step 2: Deploy the Smart Contract on Hedera
+
+Deploy the smart contract on the Hedera network. You can use tools like Remix IDE to compile and deploy the contract. Ensure you have an account on Hedera and use your account details to deploy the contract.
+
+### Step 3: Frontend for Voting
+
+We'll update the frontend to include a section where members can propose objects for funding and vote on them. We'll use the Hedera JavaScript SDK to interact with the Hedera network.
+
+**Dashboard.js** (Update with Voting Interface)
+```javascript
+import { Client, ContractCallQuery, ContractExecuteTransaction, ContractId, PrivateKey } from "@hashgraph/sdk";
+import DAOABI from "./DAOABI.json";
+
+const Dashboard = () => {
+    const container = document.createElement('div');
+    container.className = 'dashboard-container';
+
+    const header = document.createElement('header');
+    header.className = 'dashboard-header';
+    header.textContent = 'xHAKT Dashboard';
+
+    const main = document.createElement('main');
+    main.className = 'dashboard-main';
+
+    const sidebar = document.createElement('aside');
+    sidebar.className = 'dashboard-sidebar';
+
+    const content = document.createElement('section');
+    content.className = 'dashboard-content';
+
+    const uploadForm = document.createElement('form');
+    uploadForm.id = 'upload-form';
+    uploadForm.innerHTML = `
+        <h2>Upload Files</h2>
+        <label for="filepicker">Select files:</label>
+        <input type="file" id="filepicker" multiple>
+        <button type="submit">Upload</button>
+        <div id="output"></div>
+    `;
+
+    sidebar.innerHTML = `
+        <nav>
+            <ul>
+                <li><a href="#" id="home-link">Home</a></li>
+                <li><a href="#" id="data-link">Data</a></li>
+                <li><a href="#" id="settings-link">Settings</a></li>
+                <li><a href="#" id="upload-link">Upload</a></li>
+                <li><a href="#" id="dao-link">DAO</a></li>
+            </ul>
+        </nav>
+        <footer>
+            <p>&copy; 2024 xHAKT</p>
+        </footer>
+    `;
+
+    sidebar.addEventListener('click', (event) => {
+        event.preventDefault();
+        if (event.target.tagName === 'A') {
+            const id = event.target.id;
+            updateContent(id, content);
+        }
+    });
+
+    const updateContent = (id, content) => {
+        switch (id) {
+            case 'home-link':
+                content.innerHTML = `
+                    <h2>Welcome to xHAKT</h2>
+                    <p>Select an option from the sidebar to get started.</p>
+                    <h3>Phytoplankton Facts</h3>
+                    <ul>
+                        <li>Phytoplankton are microscopic marine algae.</li>
+                        <li>They form the foundation of the aquatic food web.</li>
+                        <li>Phytoplankton produce about half of the oxygen we breathe.</li>
+                        <li>They play a crucial role in carbon sequestration by absorbing CO2 during photosynthesis.</li>
+                    </ul>
+                    <h3>Importance of Phytoplankton</h3>
+                    <p>Phytoplankton are vital for life on Earth. They form the basis of the marine food web, supporting fish, whales, and other marine life. By producing oxygen and absorbing CO2, they help regulate our climate and sustain marine ecosystems.</p>
+                    <h3>Global Phytoplankton Distribution Slideshow</h3>
+                    <div class="slideshow-container">
+                        <div class="slideshow">
+                            <img class="slide" src="https://eoimages.gsfc.nasa.gov/images/globalmaps/data/MY1DMM_CHLORA/MY1DMM_CHLORA_2002-07.JPEG" alt="Global Map Chlorophyll Image 1" data-value="1">
+                            <img class="slide" src="https://eoimages.gsfc.nasa.gov/images/globalmaps/data/MY1DMM_CHLORA/MY1DMM_CHLORA_2002-08.JPEG" alt="Global Map Chlorophyll Image 2" data-value="2">
+                            <img class="slide" src="https://eoimages.gsfc.nasa.gov/images/globalmaps/data/MY1DMM_CHLORA/MY1DMM_CHLORA_2002-09.JPEG" alt="Global Map Chlorophyll Image 3" data-value="3">
+                        </div>
+                        <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+                        <a class="next" onclick="plusSlides(1)">&#10095;</a>
+                    </div>
+                    <h3>Helpful Resources</h3>
+                    <ul class="resources">
+                        <li><a href="https://oceanservice.noaa.gov/facts/phyto.html" target="_blank">Phytoplankton Overview | NOAA</a></li>
+                        <li><a href="https://earthobservatory.nasa.gov/features/Phytoplankton" target="_blank">Phytoplankton | NASA Earth Observatory</a></li>
+                        <li><a href="https://www.usgs.gov/centers/wetland-and-aquatic-research-center/science/carbon-sequestration" target="_blank">Carbon Sequestration | USGS</a></li>
+                        <li><a href="https://www.noaa.gov/education/resource-collections/climate/carbon-sequestration" target="_blank">What is Carbon Sequestration? | NOAA</a></li>
+                        <li><a href="https://www.nationalgeographic.org/encyclopedia/marine-ecosystem/" target="_blank">Marine Ecosystem | National Geographic</a></li>
+                        <li><a href="https://www.marinebio.org/creatures/phytoplankton/" target="_blank">Phytoplankton and the Marine Food Web | MarineBio</a></li>
+                        <li><a href="https://academic.oup.com/plankt" target="_blank">Journal of Plankton Research</a></li>
+                        <li><a href="https://agupubs.onlinelibrary.wiley.com/journal/19449224" target="_blank">Global Biogeochemical Cycles Journal</a></li>
+                        <li><a href="https://www.springer.com/gp/book/9783030057434" target="_blank">Phytoplankton Ecology: Basics and Applications</a></li>
+                        <li><a href="https://www.amazon.com/Introduction-Marine-Biology-George-Karleskint/dp/1305254289" target="_blank">Introduction to Marine Biology</a></li>
+                        <li><a href="https://www.coursera.org/courses?query=marine%20biology" target="_blank">Coursera: Marine Biology Courses</a></li>
+                        <li><a href="https://www.edx.org/course/climate-change
+
+-the-ocean" target="_blank">edX: Climate Change and the Ocean</a></li>
+                        <li><a href="https://mynasadata.larc.nasa.gov/basic-page/global-phytoplankton-distribution" target="_blank">Global Phytoplankton Distribution | My NASA Data</a></li>
+                    </ul>
+                `;
+                initSlideshow();
+                break;
+            case 'dao-link':
+                content.innerHTML = `
+                    <h2>DAO Voting</h2>
+                    <div id="dao-content">
+                        <h3>Create a Proposal</h3>
+                        <form id="create-proposal-form">
+                            <input type="text" id="proposal-description" placeholder="Proposal Description" required>
+                            <button type="submit">Create Proposal</button>
+                        </form>
+                        <h3>Proposals</h3>
+                        <div id="proposals"></div>
+                    </div>
+                `;
+                initDAO();
+                break;
+            case 'data-link':
+                content.innerHTML = `
+                    <h2>Data</h2>
+                    <p>Here you can view and manage your data related to phytoplankton and carbon sequestration.</p>
+                `;
+                break;
+            case 'settings-link':
+                content.innerHTML = `
+                    <h2>Settings</h2>
+                    <p>Manage your account settings and preferences here.</p>
+                `;
+                break;
+            case 'upload-link':
+                content.innerHTML = '';
+                content.appendChild(uploadForm);
+                break;
+            default:
+                content.innerHTML = `
+                    <h2>Welcome to xHAKT</h2>
+                    <p>Select an option from the sidebar to get started.</p>
+                `;
+                break;
+        }
+    };
+
+    main.appendChild(sidebar);
+    main.appendChild(content);
+
+    container.appendChild(header);
+    container.appendChild(main);
+
+    return container;
+};
+
+const initDAO = async () => {
+    const client = Client.forTestnet();
+    client.setOperator(process.env.HEDERA_ACCOUNT_ID, PrivateKey.fromString(process.env.HEDERA_PRIVATE_KEY));
+
+    const contractId = ContractId.fromString('YOUR_CONTRACT_ID_HERE');
+    const abi = DAOABI;
+
+    document.getElementById('create-proposal-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const description = document.getElementById('proposal-description').value;
+
+        const functionCall = abi.encodeFunctionCall('createProposal', [description]);
+        const tx = new ContractExecuteTransaction()
+            .setContractId(contractId)
+            .setGas(100000)
+            .setFunctionParameters(functionCall)
+            .freezeWith(client);
+
+        const signTx = await tx.sign(PrivateKey.fromString(process.env.HEDERA_PRIVATE_KEY));
+        const txResponse = await signTx.execute(client);
+        await txResponse.getReceipt(client);
+        loadProposals();
+    });
+
+    const loadProposals = async () => {
+        const proposalsContainer = document.getElementById('proposals');
+        proposalsContainer.innerHTML = '';
+
+        const functionCall = abi.encodeFunctionCall('getProposals', []);
+        const query = new ContractCallQuery()
+            .setContractId(contractId)
+            .setFunctionParameters(functionCall)
+            .setGas(100000);
+
+        const result = await query.execute(client);
+        const proposals = abi.decodeFunctionResult('getProposals', result.asBytes());
+
+        proposals.forEach((proposal, index) => {
+            const proposalElement = document.createElement('div');
+            proposalElement.innerHTML = `
+                <p>${proposal.description}</p>
+                <p>Votes: ${proposal.voteCount}</p>
+                <button onclick="vote(${index + 1})">Vote</button>
+            `;
+            proposalsContainer.appendChild(proposalElement);
+        });
+    };
+
+    window.vote = async (id) => {
+        const functionCall = abi.encodeFunctionCall('vote', [id]);
+        const tx = new ContractExecuteTransaction()
+            .setContractId(contractId)
+            .setGas(100000)
+            .setFunctionParameters(functionCall)
+            .freezeWith(client);
+
+        const signTx = await tx.sign(PrivateKey.fromString(process.env.HEDERA_PRIVATE_KEY));
+        const txResponse = await signTx.execute(client);
+        await txResponse.getReceipt(client);
+        loadProposals();
+    };
+
+    loadProposals();
+};
+
+const initSlideshow = () => {
+    let slideIndex = 1;
+    showSlides(slideIndex);
+
+    window.plusSlides = function (n) {
+        showSlides(slideIndex += n);
+    };
+
+    function showSlides(n) {
+        let i;
+        let slides = document.getElementsByClassName("slide");
+        if (n > slides.length) { slideIndex = 1 }
+        if (n < 1) { slideIndex = slides.length }
+        for (i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";
+        }
+        slides[slideIndex - 1].style.display = "block";
+    }
+};
+
+export default Dashboard;
+```
+
+### Step 4: Update CSS for DAO Section
+
+Add styles for the DAO section in `styles.css`:
+
+```css
 body {
-  font-family: "Roboto", sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f4f4f9;
-  color: #333;
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+    color: #333;
 }
 
 .dashboard-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background-color: #ffffff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #ffffff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .dashboard-header {
-  background-color: #004d61;
-  color: #ffffff;
-  padding: 15px 20px;
-  text-align: center;
-  font-size: 1.5em;
-  font-weight: 500;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: #004d61;
+    color: #ffffff;
+    padding: 15px 20px;
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .dashboard-main {
-  display: flex;
-  flex: 1;
+    display: flex;
+    flex: 1;
 }
 
 .dashboard-sidebar {
-  background-color: #003647;
-  color: #ffffff;
-  padding: 20px;
-  width: 250px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
+    background-color: #003647;
+    color: #ffffff;
+    padding: 20px;
+    width: 250px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
 }
 
 .dashboard-sidebar nav {
-  flex: 1;
+    flex: 1;
 }
 
 .dashboard-sidebar ul {
-  list-style-type: none;
-  padding: 0;
+    list-style-type: none;
+    padding: 0;
 }
 
 .dashboard-sidebar li {
-  margin: 10px 0;
+    margin: 10px 0;
 }
 
 .dashboard-sidebar a {
-  text-decoration: none;
-  color: #ffffff;
-  padding: 10px 15px;
-  display: block;
-  border-radius: 4px;
-  transition: background-color 0.3s;
+    text-decoration: none;
+    color: #ffffff;
+    padding: 10px 15px;
+    display: block;
+    border-radius: 4px;
+    transition: background-color 0.3s;
 }
 
 .dashboard-sidebar a:hover {
-  background-color: #005a70;
+    background-color: #005a70;
 }
 
 .dashboard-content {
-  flex: 1;
-  padding: 30px;
-  background-color: #f4f4f9;
+    flex: 1;
+    padding: 30px;
+    background-color: #f9fafb;
+    overflow-y: auto;
 }
 
-h2,
-h3 {
-  color: #004d61;
-  margin-bottom: 20px;
+h2, h3 {
+    color: #004d61;
+    margin-bottom: 20px;
 }
 
 p {
-  color: #666;
-  line-height: 1.6;
+    color: #666;
+    line-height: 1.6;
 }
 
 .section-title {
-  font-size: 1.2em;
-  margin-bottom: 10px;
-  color: #005a70;
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    color: #005a70;
 }
 
 #upload-form {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+    background-color: #e6f7f8;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
 }
 
 #upload-form label {
-  display: block;
-  margin-bottom: 10px;
-  color: #333;
+    display: block;
+    margin-bottom: 10px;
+    color: #333;
 }
 
 #upload-form input[type="file"] {
-  display: block;
-  margin-bottom: 10px;
+    display: block;
+    margin-bottom: 10px;
 }
 
 #upload-form button {
-  background-color: #004d61;
-  color: #fff;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s;
+    background-color: #004d61;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 #upload-form button:hover {
-  background-color: #005a70;
+    background-color: #005a70;
 }
 
 #output {
-  margin-top: 20px;
+    margin-top: 20px;
 }
 
-#output div,
-#output a {
-  margin-bottom: 5px;
+#output div, #output a {
+    margin-bottom: 5px;
 }
 
 ul {
-  padding-left: 20px;
-  list-style-type: disc;
+    padding-left: 20px;
+    list-style-type: disc;
 }
 
 ul.resources {
-  padding-left: 0;
+    padding-left: 0;
 }
 
 ul.resources li {
-  margin: 10px 0;
+    margin: 10px 0;
 }
 
 ul.resources li a {
-  text-decoration: none;
-  color: #004d61;
+    text-decoration: none;
+    color: #004d61;
 }
 
-ul.resources li a:hover {
-  text-decoration: underline;
-}
-
-img.panel-slideshow-image {
-  width: 100%;
-  max-width: 100%;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-}
