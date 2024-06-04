@@ -7,6 +7,7 @@ contract DAO {
         string description;
         uint voteCount;
         bool funded;
+        address proposer;
     }
 
     address public owner;
@@ -16,9 +17,9 @@ contract DAO {
 
     uint public proposalCount;
 
-    event ProposalCreated(uint id, string description);
+    event ProposalCreated(uint id, string description, address proposer);
     event Voted(uint proposalId, address voter);
-    event Funded(uint proposalId);
+    event Funded(uint proposalId, address funder);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Not owner");
@@ -40,8 +41,8 @@ contract DAO {
 
     function createProposal(string memory _description) public onlyMember {
         proposalCount++;
-        proposals.push(Proposal(proposalCount, _description, 0, false));
-        emit ProposalCreated(proposalCount, _description);
+        proposals.push(Proposal(proposalCount, _description, 0, false, msg.sender));
+        emit ProposalCreated(proposalCount, _description, msg.sender);
     }
 
     function vote(uint _proposalId) public onlyMember {
@@ -58,7 +59,7 @@ contract DAO {
         require(!proposals[_proposalId - 1].funded, "Already funded");
 
         proposals[_proposalId - 1].funded = true;
-        emit Funded(_proposalId);
+        emit Funded(_proposalId, msg.sender);
     }
 
     function getProposals() public view returns (Proposal[] memory) {

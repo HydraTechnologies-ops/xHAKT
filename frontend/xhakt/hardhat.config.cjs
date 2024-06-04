@@ -1,8 +1,12 @@
 require("@nomicfoundation/hardhat-toolbox");
-require("@nomicfoundation/hardhat-chai-matchers");
-require("dotenv").config(); // Import dotenv library to access the .env file
+require("dotenv/config");
 
-/** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
-  solidity: "0.8.24",
+  solidity: "0.8.4",
+  networks: {
+    testnet: {
+      url: process.env.TESTNET_ENDPOINT,
+      accounts: [process.env.TESTNET_OPERATOR_PRIVATE_KEY],
+    },
+  },
 };
