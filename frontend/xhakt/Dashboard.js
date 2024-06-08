@@ -6,7 +6,7 @@ import {
   PrivateKey,
 } from "@hashgraph/sdk";
 import DAO from "./artifacts/contracts/DAO.sol/DAO.json";
-import Home from "./pages/home.js";
+import { Home } from "./pages/home.js";
 
 const privateKey = import.meta.env.VITE_TESTNET_OPERATOR_PRIVATE_KEY;
 const testnetEndPoint = import.meta.env.VITE_TESTNET_ENDPOINT;
@@ -152,6 +152,23 @@ const Dashboard = () => {
 
   container.appendChild(header);
   container.appendChild(main);
+
+  let learnMas = document.getElementById("learn-more");
+
+  window.addEventListener("loaded", () => {
+    console.log("DOM Content Loaded");
+    learnMas = document.getElementById("learn-more");
+    console.log("Learn More Button", learnMas);
+  });
+
+  //TODO: FIX THIS
+  const initLearnMoreButton = async (element, updateContent, content) => {
+    element.addEventListener("click", (e) => {
+      console.log("Learn More Button Clicked");
+      e.preventDefault();
+      updateContent("data-link", content);
+    });
+  };
 
   // Initialize event polling
   pollEvents();
