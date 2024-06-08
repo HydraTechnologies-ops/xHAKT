@@ -255,7 +255,7 @@ ul.resources li a {
 }
 
 .footer {
-  text-align: center;
+  text-align: flex-start;
   /* padding: 20px; */
   /* background-color: #004d61; */
   color: #ffffff;
