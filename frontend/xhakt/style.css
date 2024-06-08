@@ -135,7 +135,7 @@ p {
 
 ul {
   padding-left: 20px;
-  list-style-type: disc;
+  list-style-type: circle;
 }
 
 ul.resources {
