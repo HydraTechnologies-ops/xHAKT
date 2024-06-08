@@ -30,8 +30,9 @@ const Dashboard = () => {
 
   const content = document.createElement("section");
   content.className = "dashboard-content";
+  Home(content);
 
-  content.innerHTML = `<h2>Welcome to xHAKT</h2>`;
+  // content.innerHTML = `<h2>Welcome to xHAKT</h2>`;
 
   const uploadForm = document.createElement("form");
   uploadForm.id = "upload-form";
@@ -53,9 +54,15 @@ const Dashboard = () => {
                 <li><a href="#" id="dao-link">DAO</a></li>
             </ul>
         </nav>
-        <footer>
-            <p>&copy; 2024 xHAKT</p>
-        </footer>
+        <footer class="footer">
+          <ul>
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">Contact</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+          </ul>
+        
+        <p>&copy; 2024 xHAKT</p>
+      </footer>
     `;
 
   sidebar.addEventListener("click", (event) => {
@@ -69,7 +76,7 @@ const Dashboard = () => {
   const updateContent = (id, content) => {
     switch (id) {
       case "home-link":
-        content.innerHTML = `<h2>Welcome to xHAKT</h2>`;
+        Home(content);
         break;
       case "dao-link":
         content.innerHTML = `
