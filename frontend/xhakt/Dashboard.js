@@ -6,6 +6,7 @@ import {
   PrivateKey,
 } from "@hashgraph/sdk";
 import DAO from "./artifacts/contracts/DAO.sol/DAO.json";
+import Home from "./pages/home.js";
 
 const privateKey = import.meta.env.VITE_TESTNET_OPERATOR_PRIVATE_KEY;
 const testnetEndPoint = import.meta.env.VITE_TESTNET_ENDPOINT;
@@ -29,6 +30,8 @@ const Dashboard = () => {
 
   const content = document.createElement("section");
   content.className = "dashboard-content";
+
+  content.innerHTML = `<h2>Welcome to xHAKT</h2>`;
 
   const uploadForm = document.createElement("form");
   uploadForm.id = "upload-form";
@@ -66,9 +69,25 @@ const Dashboard = () => {
   const updateContent = (id, content) => {
     switch (id) {
       case "home-link":
+        content.innerHTML = `<h2>Welcome to xHAKT</h2>`;
+        break;
+      case "dao-link":
         content.innerHTML = `
-                    <h2>Welcome to xHAKT</h2>
-                    <p>Select an option from the sidebar to get started.</p>
+                    <h2>DAO Voting</h2>
+                    <div id="dao-content">
+                        <h3>Create a Proposal</h3>
+                        <form id="create-proposal-form">
+                            <input type="text" id="proposal-description" placeholder="Proposal Description" required>
+                            <button type="submit">Create Proposal</button>
+                        </form>
+                        <h3>Proposals</h3>
+                        <div id="proposals"></div>
+                    </div>
+                `;
+        initDAO();
+        break;
+      case "data-link":
+        content.innerHTML = `
                     <h3>Phytoplankton Facts</h3>
                     <ul>
                         <li>Phytoplankton are microscopic marine algae.</li>
@@ -107,27 +126,6 @@ const Dashboard = () => {
                 `;
         initSlideshow();
         break;
-      case "dao-link":
-        content.innerHTML = `
-                    <h2>DAO Voting</h2>
-                    <div id="dao-content">
-                        <h3>Create a Proposal</h3>
-                        <form id="create-proposal-form">
-                            <input type="text" id="proposal-description" placeholder="Proposal Description" required>
-                            <button type="submit">Create Proposal</button>
-                        </form>
-                        <h3>Proposals</h3>
-                        <div id="proposals"></div>
-                    </div>
-                `;
-        initDAO();
-        break;
-      case "data-link":
-        content.innerHTML = `
-                    <h2>Data</h2>
-                    <p>Here you can view and manage your data related to phytoplankton and carbon sequestration.</p>
-                `;
-        break;
       case "settings-link":
         content.innerHTML = `
                     <h2>Settings</h2>
@@ -146,6 +144,8 @@ const Dashboard = () => {
         break;
     }
   };
+
+  // Set default content to home on initial load
 
   main.appendChild(sidebar);
   main.appendChild(content);
