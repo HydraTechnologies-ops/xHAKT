@@ -1,25 +1,18 @@
-import dotenv from "dotenv";
-dotenv.config();
+import { ethers, upgrades } from "hardhat";
 
 async function main() {
-  const hre = await import("hardhat");
-  const { ethers } = hre.default;
-  const [deployer] = await ethers.getSigners();
+  const ContractFactory = await ethers.getContractFactory("PhytoToken");
 
-  console.log("Deploying contracts with the account:", deployer.address);
+  // TODO: Set addresses for the contract arguments below
+  const instance = await upgrades.deployProxy(ContractFactory, [initialOwner]);
+  await instance.waitForDeployment();
 
-  const DAO = await ethers.getContractFactory("DAO");
-  const dao = await DAO.deploy();
-
-  await dao.deploymentTransaction();
-
-  const daoAddress = await dao.getAddress();
-  await console.log("DAO contract deployed to:", daoAddress);
+  console.log(`Proxy deployed to ${await instance.getAddress()}`);
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+// We recommend this pattern to be able to use async/await everywhere
+// and properly handle errors.
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
