@@ -5,7 +5,7 @@ import {
   ContractExecuteTransaction,
   PrivateKey,
 } from "@hashgraph/sdk";
-import DAO from "./artifacts/contracts/DAO.sol/DAO.json";
+// import DAO from "./artifacts/contracts/DAO.sol/DAO.json";
 import { Home } from "./pages/home.js";
 
 const privateKey = import.meta.env.VITE_TESTNET_OPERATOR_PRIVATE_KEY;

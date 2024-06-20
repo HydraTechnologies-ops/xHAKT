@@ -51,20 +51,10 @@ const Home = (element) => {
           </blockquote>
         </div>
       </section>
+    
       
-      <footer class="footer">
-        <nav class="footer-nav">
-          <ul>
-            <li><a href="#">About Us</a></li>
-            <li><a href="#">Contact</a></li>
-            <li><a href="#">Privacy Policy</a></li>
-          </ul>
-        </nav>
-        <p>&copy; 2024 xHAKT</p>
-      </footer>
     </div>
   `;
 };
-
 
 export { Home };
