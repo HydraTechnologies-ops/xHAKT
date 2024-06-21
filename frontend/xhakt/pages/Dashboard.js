@@ -6,7 +6,7 @@ import {
   PrivateKey,
 } from "@hashgraph/sdk";
 // import DAO from "./artifacts/contracts/DAO.sol/DAO.json";
-import { Home } from "./pages/home.js";
+import { Home } from "./home.js";
 
 const privateKey = import.meta.env.VITE_TESTNET_OPERATOR_PRIVATE_KEY;
 const testnetEndPoint = import.meta.env.VITE_TESTNET_ENDPOINT;

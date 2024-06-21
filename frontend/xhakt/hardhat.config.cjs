@@ -2,7 +2,7 @@ require("@nomicfoundation/hardhat-toolbox");
 require("dotenv/config");
 
 module.exports = {
-  solidity: "0.8.4",
+  solidity: "^0.8.20",
   networks: {
     testnet: {
       url: process.env.TESTNET_ENDPOINT,
