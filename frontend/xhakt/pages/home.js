@@ -43,7 +43,7 @@ const Home = (element) => {
         <div class="testimonials">
           <blockquote>
             <p>"xHAKT has transformed the way we manage our marine data. Highly recommend!"</p>
-            <footer>- Marine Biologist</footer>
+            <footer>- Marine Biologist (Probably)</footer>
           </blockquote>
           <blockquote>
             <p>"The DAO feature is fantastic. It's great to have a say in the platform's future."</p>
