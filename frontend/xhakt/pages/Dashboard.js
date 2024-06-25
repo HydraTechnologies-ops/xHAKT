@@ -1,10 +1,4 @@
 import { ethers } from "ethers";
-import {
-  Client,
-  ContractCallQuery,
-  ContractExecuteTransaction,
-  PrivateKey,
-} from "@hashgraph/sdk";
 // import DAO from "./artifacts/contracts/DAO.sol/DAO.json";
 import { Home } from "./home.js";
 
@@ -153,8 +147,6 @@ const Dashboard = () => {
   container.appendChild(header);
   container.appendChild(main);
 
-  let learnMas = document.getElementById("learn-more");
-
   window.addEventListener("loaded", () => {
     console.log("DOM Content Loaded");
     learnMas = document.getElementById("learn-more");
@@ -171,41 +163,41 @@ const Dashboard = () => {
   };
 
   // Initialize event polling
-  pollEvents();
+  // pollEvents();
 
   return container;
 };
 
-const initDAO = async () => {
-  const client = Client.forTestnet();
-  client.setOperator(hederaAccountId, PrivateKey.fromStringDer(derPrivateKey));
+// const initDAO = async () => {
+//   const client = Client.forTestnet();
+//   client.setOperator(hederaAccountId, PrivateKey.fromStringDer(derPrivateKey));
 
-  const abi = DAO.abi;
+//   const abi = DAO.abi;
 
-  document
-    .getElementById("create-proposal-form")
-    .addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const description = document.getElementById("proposal-description").value;
+//   document
+//     .getElementById("create-proposal-form")
+//     .addEventListener("submit", async (event) => {
+//       event.preventDefault();
+//       const description = document.getElementById("proposal-description").value;
 
-      const functionCall = new ethers.utils.Interface(abi).encodeFunctionData(
-        "createProposal",
-        [description]
-      );
-      const tx = new ContractExecuteTransaction()
-        .setContractId(contractId)
-        .setGas(100000)
-        .setFunctionParameters(functionCall)
-        .freezeWith(client);
+//       const functionCall = new ethers.utils.Interface(abi).encodeFunctionData(
+//         "createProposal",
+//         [description]
+//       );
+//       const tx = new ContractExecuteTransaction()
+//         .setContractId(contractId)
+//         .setGas(100000)
+//         .setFunctionParameters(functionCall)
+//         .freezeWith(client);
 
-      const signTx = await tx.sign(PrivateKey.fromStringDer(derPrivateKey));
-      const txResponse = await signTx.execute(client);
-      await txResponse.getReceipt(client);
-      loadProposals();
-    });
+//       const signTx = await tx.sign(PrivateKey.fromStringDer(derPrivateKey));
+//       const txResponse = await signTx.execute(client);
+//       await txResponse.getReceipt(client);
+//       loadProposals();
+//     });
 
-  loadProposals();
-};
+//   loadProposals();
+// };
 
 const loadProposals = async () => {
   const client = Client.forTestnet();
@@ -269,66 +261,66 @@ const initSlideshow = () => {
   }
 };
 
-const pollEvents = async () => {
-  const provider = new ethers.JsonRpcProvider(testnetEndPoint);
+// const pollEvents = async () => {
+//   const provider = new ethers.JsonRpcProvider(testnetEndPoint);
 
-  const abi = DAO.abi;
+//   const abi = DAO.abi;
 
-  let lastBlock = await provider.getBlockNumber();
+//   let lastBlock = await provider.getBlockNumber();
 
-  setInterval(async () => {
-    const currentBlock = await provider.getBlockNumber();
-    for (let i = lastBlock + 1; i <= currentBlock; i++) {
-      const block = await provider.getBlockWithTransactions(i);
-      block.transactions.forEach(async (tx) => {
-        try {
-          const receipt = await provider.getTransactionReceipt(tx.hash);
-          receipt.logs.forEach((log) => {
-            try {
-              const parsedLog = new ethers.utils.Interface(abi).parseLog(log);
-              if (parsedLog.name === "ProposalCreated") {
-                const { id, description, proposer } = parsedLog.args;
-                const proposalsContainer = document.getElementById("proposals");
-                const proposalElement = document.createElement("div");
-                proposalElement.className = "proposal";
-                proposalElement.innerHTML = `
-                  <p><strong>Proposal ID:</strong> ${id}</p>
-                  <p><strong>Description:</strong> ${description}</p>
-                  <p><strong>Proposer:</strong> ${proposer}</p>
-                  <button class="vote-button" onclick="vote(${id})">Vote</button>
-                `;
-                proposalsContainer.appendChild(proposalElement);
-              } else if (parsedLog.name === "Voted") {
-                const { proposalId, voter } = parsedLog.args;
-                const proposalsContainer = document.getElementById("proposals");
-                const proposalElement = document.createElement("div");
-                proposalElement.className = "proposal";
-                proposalElement.innerHTML = `
-                  <p><strong>Vote cast on Proposal ID:</strong> ${proposalId} by ${voter}</p>
-                `;
-                proposalsContainer.appendChild(proposalElement);
-              } else if (parsedLog.name === "Funded") {
-                const { proposalId, funder } = parsedLog.args;
-                const proposalsContainer = document.getElementById("proposals");
-                const proposalElement = document.createElement("div");
-                proposalElement.className = "proposal";
-                proposalElement.innerHTML = `
-                  <p><strong>Proposal ID:</strong> ${proposalId} funded by ${funder}</p>
-                `;
-                proposalsContainer.appendChild(proposalElement);
-              }
-            } catch (err) {
-              console.error("Error parsing log:", err);
-            }
-          });
-        } catch (err) {
-          console.error("Error getting transaction receipt:", err);
-        }
-      });
-    }
-    lastBlock = currentBlock;
-  }, 60000); // Poll every 60 seconds
-};
+//   setInterval(async () => {
+//     const currentBlock = await provider.getBlockNumber();
+//     for (let i = lastBlock + 1; i <= currentBlock; i++) {
+//       const block = await provider.getBlockWithTransactions(i);
+//       block.transactions.forEach(async (tx) => {
+//         try {
+//           const receipt = await provider.getTransactionReceipt(tx.hash);
+//           receipt.logs.forEach((log) => {
+//             try {
+//               const parsedLog = new ethers.utils.Interface(abi).parseLog(log);
+//               if (parsedLog.name === "ProposalCreated") {
+//                 const { id, description, proposer } = parsedLog.args;
+//                 const proposalsContainer = document.getElementById("proposals");
+//                 const proposalElement = document.createElement("div");
+//                 proposalElement.className = "proposal";
+//                 proposalElement.innerHTML = `
+//                   <p><strong>Proposal ID:</strong> ${id}</p>
+//                   <p><strong>Description:</strong> ${description}</p>
+//                   <p><strong>Proposer:</strong> ${proposer}</p>
+//                   <button class="vote-button" onclick="vote(${id})">Vote</button>
+//                 `;
+//                 proposalsContainer.appendChild(proposalElement);
+//               } else if (parsedLog.name === "Voted") {
+//                 const { proposalId, voter } = parsedLog.args;
+//                 const proposalsContainer = document.getElementById("proposals");
+//                 const proposalElement = document.createElement("div");
+//                 proposalElement.className = "proposal";
+//                 proposalElement.innerHTML = `
+//                   <p><strong>Vote cast on Proposal ID:</strong> ${proposalId} by ${voter}</p>
+//                 `;
+//                 proposalsContainer.appendChild(proposalElement);
+//               } else if (parsedLog.name === "Funded") {
+//                 const { proposalId, funder } = parsedLog.args;
+//                 const proposalsContainer = document.getElementById("proposals");
+//                 const proposalElement = document.createElement("div");
+//                 proposalElement.className = "proposal";
+//                 proposalElement.innerHTML = `
+//                   <p><strong>Proposal ID:</strong> ${proposalId} funded by ${funder}</p>
+//                 `;
+//                 proposalsContainer.appendChild(proposalElement);
+//               }
+//             } catch (err) {
+//               console.error("Error parsing log:", err);
+//             }
+//           });
+//         } catch (err) {
+//           console.error("Error getting transaction receipt:", err);
+//         }
+//       });
+//     }
+//     lastBlock = currentBlock;
+//   }, 60000); // Poll every 60 seconds
+// };
 
 window.vote = async (id) => {
   const client = Client.forTestnet();

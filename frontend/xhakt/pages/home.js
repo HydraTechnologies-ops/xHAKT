@@ -1,6 +1,8 @@
 // src/pages/home.js
+import { get } from "mongoose";
+import getBalances from "./functions";
 
-const Home = (element) => {
+const Home = async (element) => {
   element.innerHTML = `
     <div class="welcome-container">
       <h1>Welcome to xHAKT</h1>
@@ -47,7 +49,7 @@ const Home = (element) => {
           </blockquote>
           <blockquote>
             <p>"The DAO feature is fantastic. It's great to have a say in the platform's future."</p>
-            <footer>- Environmental Scientist</footer>
+            <footer>- Environmental Scientist (Probably)</footer>
           </blockquote>
         </div>
       </section>
@@ -55,6 +57,13 @@ const Home = (element) => {
       
     </div>
   `;
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const learnMoreButton = document.getElementById("learn-more");
+    learnMoreButton.addEventListener("click", () => {
+      getBalances();
+    });
+  });
 };
 
 export { Home };
