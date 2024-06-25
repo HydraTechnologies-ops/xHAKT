@@ -152,6 +152,17 @@ ul.resources li a {
   color: #004d61;
 }
 
+ul.token-data li {
+  list-style: none;
+}
+
+#token-data {
+  background-color: #e6f7f8;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
 .welcome-container {
   text-align: center;
   padding: 50px 20px;

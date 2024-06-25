@@ -988,6 +988,7 @@ export default async function getBalances() {
   ]);
 
   const metaData = await alchemy.core.getTokenMetadata(contractAddress);
+  return metaData;
 
   console.log("Token Balances");
   console.log(balances);

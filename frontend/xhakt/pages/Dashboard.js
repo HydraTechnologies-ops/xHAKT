@@ -1,12 +1,17 @@
 import { ethers } from "ethers";
 // import DAO from "./artifacts/contracts/DAO.sol/DAO.json";
 import { Home } from "./home.js";
+import getBalances from "./functions.js";
+import { get } from "mongoose";
+import "../style.css";
 
 const privateKey = import.meta.env.VITE_TESTNET_OPERATOR_PRIVATE_KEY;
 const testnetEndPoint = import.meta.env.VITE_TESTNET_ENDPOINT;
 const hederaAccountId = import.meta.env.VITE_HEDERA_ACCOUNT_ID;
 const derPrivateKey = import.meta.env.VITE_DER_ENCODED_PRIVATE_KEY;
 const contractId = "0.0.4410158";
+const tokenData = await getBalances();
+console.log(tokenData);
 
 const Dashboard = () => {
   const container = document.createElement("div");
@@ -71,7 +76,13 @@ const Dashboard = () => {
         break;
       case "dao-link":
         content.innerHTML = `
-          <h2 class="section-title">DAO Voting</h2>
+          <h1 class="section-title">DAO Voting</h1>
+        <h2 class="section-subtitle">Token Data</h2>
+        <div id="token-data"><ul class="token-data">
+        <li>Token Name: ${tokenData.name} </li>
+        <li>Token Symbol: ${tokenData.symbol} </li>
+        <li>Decimals: ${tokenData.decimals} </li></ul></div>
+        <p></p>
           <div id="dao-content">
             <h3 class="section-subtitle">Create a Proposal</h3>
             <form id="create-proposal-form">
@@ -82,7 +93,7 @@ const Dashboard = () => {
             <div id="proposals"></div>
           </div>
         `;
-        initDAO();
+        // initDAO();
         break;
       case "data-link":
         content.innerHTML = `
@@ -149,8 +160,6 @@ const Dashboard = () => {
 
   window.addEventListener("loaded", () => {
     console.log("DOM Content Loaded");
-    learnMas = document.getElementById("learn-more");
-    console.log("Learn More Button", learnMas);
   });
 
   //TODO: FIX THIS
