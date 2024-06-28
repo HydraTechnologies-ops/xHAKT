@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 // import DAO from "./artifacts/contracts/DAO.sol/DAO.json";
 import { Home } from "./home.js";
-import getBalances from "./functions.js";
+import getBalances, { getTransfers } from "./functions.js";
 import { get } from "mongoose";
 import "../style.css";
 
@@ -11,6 +11,7 @@ const hederaAccountId = import.meta.env.VITE_HEDERA_ACCOUNT_ID;
 const derPrivateKey = import.meta.env.VITE_DER_ENCODED_PRIVATE_KEY;
 const contractId = "0.0.4410158";
 const tokenData = await getBalances();
+const transfers = await getTransfers();
 console.log(tokenData);
 
 const Dashboard = () => {
@@ -45,8 +46,8 @@ const Dashboard = () => {
     <nav>
       <ul>
         <li><a href="#" id="home-link">Home</a></li>
-        <li><a href="#" id="data-link">Data</a></li>
-        <li><a href="#" id="settings-link">Settings</a></li>
+        <li><a href="#" id="data-link">Information</a></li>
+        <li><a href="#" id="settings-link">Data</a></li>
         <li><a href="#" id="upload-link">Upload</a></li>
         <li><a href="#" id="dao-link">DAO</a></li>
       </ul>
@@ -79,9 +80,10 @@ const Dashboard = () => {
           <h1 class="section-title">DAO Voting</h1>
         <h2 class="section-subtitle">Token Data</h2>
         <div id="token-data"><ul class="token-data">
-        <li>Token Name: ${tokenData.name} </li>
-        <li>Token Symbol: ${tokenData.symbol} </li>
-        <li>Decimals: ${tokenData.decimals} </li></ul></div>
+        <li><strong>Token Name:</strong> ${tokenData.name} </li>
+        <li><strong>Token Symbol:</strong> ${tokenData.symbol} </li>
+        <li><strong>Decimals:</strong> ${tokenData.decimals} </li>
+          <li><strong>View Contract:</strong><a href="https://sepolia.etherscan.io/address/0x58a06422587443b7c948fd0bf7ccaf39569020b9" target="_blank"> Sepolia Etherscan</a></li></ul></div>
         <p></p>
           <div id="dao-content">
             <h3 class="section-subtitle">Create a Proposal</h3>

@@ -154,6 +154,10 @@ ul.resources li a {
 
 ul.token-data li {
   list-style: none;
+  margin-bottom: 5px;
+}
+
+ul.token-data li span {
 }
 
 #token-data {
