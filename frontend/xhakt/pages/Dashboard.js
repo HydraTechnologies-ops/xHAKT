@@ -210,43 +210,43 @@ const Dashboard = () => {
 //   loadProposals();
 // };
 
-const loadProposals = async () => {
-  const client = Client.forTestnet();
-  client.setOperator(hederaAccountId, PrivateKey.fromStringDer(derPrivateKey));
+// const loadProposals = async () => {
+//   const client = Client.forTestnet();
+//   client.setOperator(hederaAccountId, PrivateKey.fromStringDer(derPrivateKey));
 
-  const abi = DAO.abi;
+//   const abi = DAO.abi;
 
-  const proposalsContainer = document.getElementById("proposals");
-  proposalsContainer.innerHTML = "";
+//   const proposalsContainer = document.getElementById("proposals");
+//   proposalsContainer.innerHTML = "";
 
-  const functionCall = new ethers.utils.Interface(abi).encodeFunctionData(
-    "getProposals",
-    []
-  );
-  const query = new ContractCallQuery()
-    .setContractId(contractId)
-    .setFunctionParameters(functionCall)
-    .setGas(100000);
+//   const functionCall = new ethers.utils.Interface(abi).encodeFunctionData(
+//     "getProposals",
+//     []
+//   );
+//   const query = new ContractCallQuery()
+//     .setContractId(contractId)
+//     .setFunctionParameters(functionCall)
+//     .setGas(100000);
 
-  const result = await query.execute(client);
-  const proposals = new ethers.utils.Interface(abi).decodeFunctionResult(
-    "getProposals",
-    result.asBytes()
-  );
+//   const result = await query.execute(client);
+//   const proposals = new ethers.utils.Interface(abi).decodeFunctionResult(
+//     "getProposals",
+//     result.asBytes()
+//   );
 
-  proposals.forEach((proposal, index) => {
-    const proposalElement = document.createElement("div");
-    proposalElement.className = "proposal";
-    proposalElement.innerHTML = `
-      <p><strong>Proposal ID:</strong> ${proposal.id}</p>
-      <p><strong>Description:</strong> ${proposal.description}</p>
-      <p><strong>Proposer:</strong> ${proposal.proposer}</p>
-      <p><strong>Votes:</strong> ${proposal.voteCount}</p>
-      <button class="vote-button" onclick="vote(${proposal.id})">Vote</button>
-    `;
-    proposalsContainer.appendChild(proposalElement);
-  });
-};
+//   proposals.forEach((proposal, index) => {
+//     const proposalElement = document.createElement("div");
+//     proposalElement.className = "proposal";
+//     proposalElement.innerHTML = `
+//       <p><strong>Proposal ID:</strong> ${proposal.id}</p>
+//       <p><strong>Description:</strong> ${proposal.description}</p>
+//       <p><strong>Proposer:</strong> ${proposal.proposer}</p>
+//       <p><strong>Votes:</strong> ${proposal.voteCount}</p>
+//       <button class="vote-button" onclick="vote(${proposal.id})">Vote</button>
+//     `;
+//     proposalsContainer.appendChild(proposalElement);
+//   });
+// };
 
 const initSlideshow = () => {
   let slideIndex = 1;
@@ -333,32 +333,32 @@ const initSlideshow = () => {
 //   }, 60000); // Poll every 60 seconds
 // };
 
-window.vote = async (id) => {
-  const client = Client.forTestnet();
-  client.setOperator(hederaAccountId, PrivateKey.fromStringDer(derPrivateKey));
+// window.vote = async (id) => {
+//   const client = Client.forTestnet();
+//   client.setOperator(hederaAccountId, PrivateKey.fromStringDer(derPrivateKey));
 
-  const abi = DAO.abi;
-  const ethersProvider = new ethers.JsonRpcProvider(testnetEndPoint);
-  const contract = new ethers.Contract(
-    contractId.toString(),
-    abi,
-    ethersProvider
-  );
+//   const abi = DAO.abi;
+//   const ethersProvider = new ethers.JsonRpcProvider(testnetEndPoint);
+//   const contract = new ethers.Contract(
+//     contractId.toString(),
+//     abi,
+//     ethersProvider
+//   );
 
-  const functionCall = new ethers.utils.Interface(abi).encodeFunctionData(
-    "vote",
-    [id]
-  );
-  const tx = new ContractExecuteTransaction()
-    .setContractId(contractId)
-    .setGas(100000)
-    .setFunctionParameters(functionCall)
-    .freezeWith(client);
+//   const functionCall = new ethers.utils.Interface(abi).encodeFunctionData(
+//     "vote",
+//     [id]
+//   );
+//   const tx = new ContractExecuteTransaction()
+//     .setContractId(contractId)
+//     .setGas(100000)
+//     .setFunctionParameters(functionCall)
+//     .freezeWith(client);
 
-  const signTx = await tx.sign(PrivateKey.fromString(privateKey));
-  const txResponse = await signTx.execute(client);
-  await txResponse.getReceipt(client);
-  loadProposals();
-};
+//   const signTx = await tx.sign(PrivateKey.fromString(privateKey));
+//   const txResponse = await signTx.execute(client);
+//   await txResponse.getReceipt(client);
+//   loadProposals();
+// };
 
 export default Dashboard;

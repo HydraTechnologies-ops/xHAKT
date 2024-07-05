@@ -982,16 +982,15 @@ const abi = [
   },
 ];
 
-
-
 export async function getTransfers() {
-  const logs = await alchemy.core.getLogs(contractAddress);
+  // const logs = await alchemy.core.getLogs(contractAddress);
 
-  const iface = new ethers.utils.Interface(abi);
-  const events = logs.map((log) => iface.parseLog(log));
-  console.log(events);
+  // const iface = new ethers.utils.Interface(abi);
+  // const events = logs.map((log) => iface.parseLog(log));
+  // console.log(events);
 
-  return events;
+  // return events;
+  return;
 }
 export default async function getBalances() {
   const balances = await alchemy.core.getTokenBalances(ownerAddr, [
