@@ -13,7 +13,7 @@
   "devDependencies": {
     "dotenv": "^16.4.5",
     "tape": "^5.7.5",
-    "vite": "^5.2.0"
+    "vite": "^5.4.12"
   },
   "dependencies": {
     "@hashgraph/sdk": "^2.26.0",
